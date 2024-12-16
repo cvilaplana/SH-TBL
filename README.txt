@@ -17,24 +17,28 @@ This codes has been tested on operation systems:
 Platform: x86_64-pc-linux-gnu (64-bit) running under: Ubuntu 18.04.5 LTS
 Memory: 32 gb RAM recommended
 
-R software has been used to develop the code using the following packages an versions:
+R software has been used to develop the code using the following packages and versions:
 	- DESeq2 1.40.2
         - WGCNA  1.72-1
+	- readxl 1.4.3
         - WriteXLS 6.4.0
-        - gdata 2.19.0
         - genefilter 1.82.1
-        - ggbeeswarm 0.7,2
+	- ggplot2 3.5.1
+        - ggbeeswarm 0.7.2
         - ggpubr 0.6.0
         - pheatmap 1.0.12
         - qusage 2.34.0
-
+	- tidyr 1.3.1
+	- clusterProfiler 4.10.1
+	- org.Hs.eg.db 3.18.0
+	- biomaRt 2.58.2
 
 R is maintained by an international team of developers who make the language available through the web page of The Comprehensive R Archive Network. This web page provides the instructions for downloading and using R (https://rstudio-education.github.io/hopr/starting.html).
 
 #  Analysis workflow R - scripts
 
-* script1.R - Required for figures 2a, 2b and 3b. DEG determination and compartment enrichment analysis.
-* script2.R - Required for WGCNA processed generated modules and corresponding Qusage enrichment. 
+* script1.R - Required for figures 2b, 3a and 3b. DEG determination and compartment enrichment analysis.
+* script2.R - Required for WGCNA processed generated modules, corresponding Qusage enrichment, and transcription factor analysis.
 
 * somefunctions.R - Required to run script1.R
 
@@ -42,10 +46,14 @@ R is maintained by an international team of developers who make the language ava
 
 Input files from scripts:
 * TBrnaseq.rds  - RDS includind feature counts data and minimal annotation used.
-* phenotype.xls - metadata including the cellular compartment and some clinical variables. 
+* phenotype.xls - metadata including the cellular compartment and some clinical variables.
+- LM22.csv - List of differentially expressed genes among leukocyte subsets sourced from Newman et al. 2015, PMID: 25822800
 
 Output files from scripts:
-* Fig2a.pdf, Fig2b.pdf and Fig3a.pdf - Derived DESeq2 tops heatmaps(derived from script1.R) 
+* Fig2b.pdf, Fig3a.pdf and Fig3b.pdf - DESeq2 top genes heatmaps (derived from script1.R)
+- SuppFig4 - Immune populations associated to modular signature  (derived from script2.R) 
 * GranulomeModules.gmt - Derived 21 gene modules related to TB compartments (derived from script2.R) 
-* QusageModuleEnrichment.xls (derived from script2.R) - Qusage table results.
- 
+* QusageModuleEnrichment.xls - Qusage table results (derived from script2.R) 
+- QusageSubmoduleEnrichment.xls - Qusage table results (derived from script2.R) 
+- rnkGeneList - DESeq2 gene stats (derived from script2.R)
+- SuppTable2 - Transcription factors associated to surrogates (derived from script2.R) 
