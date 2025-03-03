@@ -218,12 +218,22 @@ ordered_modules <- c("Salmon", "Brown", "Greenyellow", "Midnightblue", "Yellow",
 ordered_annotations <- c("DNA binding", "EMT", "Neutrophil degranulation", "Cell signaling", "Cell cycle", "Adaptive/Humoral", "Extracellular matrix", "IFN/Cytokine signaling", "Cholesterol biosynthesis", "Metabolism", "Miscellaneous", "Oxidative phosphorylation", "Cilium organization", "Innate/PRR", "Ribosomal/metabolic process", "Myeloid activation", "Organelle biosynthesis")
 lm22_modules$Module <- factor(lm22_modules$Module, levels = ordered_modules)
 
+table_lm22_modules <- as.data.frame.matrix(table(lm22_modules$Module, lm22_modules$Population))
+row.names(table_lm22_modules) <- paste(ordered_modules, ordered_annotations, sep = " - ")
+names(table_lm22_modules) <- gsub("\n", " ", names(table_lm22_modules))
+
 pdf("./SuppFig3a.pdf", width = 12, height = 8)
-pheatmap(as.matrix(table_lm22_modules),
-         scale = "none",
-         color = colorRampPalette(c("white", "#c60000"))(25),
-         border_color = "grey90",
-         cellwidth = 20, cellheight = 20, fontsize_row = 10, fontsize_col = 10, angle_col = 45, cluster_rows = FALSE, cluster_cols = FALSE)
+pheatmap::pheatmap(as.matrix(table_lm22_modules),
+                   scale = "none",
+                   color = colorRampPalette(c("white", "#c60000"))(25),
+                   border_color = "grey90",
+                   cellwidth = 20,
+                   cellheight = 20,
+                   fontsize_row = 10,
+                   fontsize_col = 10,
+                   angle_col = 45,
+                   cluster_rows = FALSE,
+                   cluster_cols = FALSE)
 dev.off()
 
 # CIBERSORT
@@ -235,7 +245,6 @@ norm_counts <- as.data.frame(counts(dds, normalized = TRUE))
 ciber <- CIBERSORT(sig_matrix = sigmat, mixture_file = norm_counts, perm = 1000, QN = FALSE, absolute = FALSE)
 
 ciber_df <- as.data.frame(ciber)
-write.csv(ciber_df, "./CIBERSORT_results")
 ciber_df <- ciber_df[ciber_df$`P-value` <= 0.05, -c(23:25)]
 ciber_df$Location <- ifelse(grepl("H$", row.names(ciber_df)), "NL",
                             ifelse(grepl("E$", row.names(ciber_df)), "E",
