@@ -217,24 +217,66 @@ lm22_modules$Module <- sapply(lm22_modules$Module, FUN = function(x) {
 ordered_modules <- c("Salmon", "Brown", "Greenyellow", "Midnightblue", "Yellow", "Turquoise", "Magenta", "Orange", "Lightcyan", "Blue", "Red", "Pink", "Purple", "Green", "Black", "Cyan", "Tan")
 ordered_annotations <- c("DNA binding", "EMT", "Neutrophil degranulation", "Cell signaling", "Cell cycle", "Adaptive/Humoral", "Extracellular matrix", "IFN/Cytokine signaling", "Cholesterol biosynthesis", "Metabolism", "Miscellaneous", "Oxidative phosphorylation", "Cilium organization", "Innate/PRR", "Ribosomal/metabolic process", "Myeloid activation", "Organelle biosynthesis")
 lm22_modules$Module <- factor(lm22_modules$Module, levels = ordered_modules)
-pdf("./SuppFig4.pdf", width = 12, height = 8)
-ggplot(lm22_modules, aes(x = Module, fill = Module)) +
-  geom_bar() +
-  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5) +
-  scale_fill_manual(values = c("salmon", "brown", "greenyellow", "midnightblue",
-                               "yellow", "turquoise", "magenta",
-                               "orange", "lightcyan", "blue", "red", "pink",
-                               "purple", "green", "black", "cyan", "tan"),
-                    labels = paste(ordered_modules, ordered_annotations, sep = " - ")) +
-  theme_bw() +
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        aspect.ratio = 0.5) +
-  labs(y = "Number of genes") +
-  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50), limits = c(0, 50)) +
-  facet_wrap(~ Population, ncol = 4)
+
+pdf("./SuppFig3a.pdf", width = 12, height = 8)
+pheatmap(as.matrix(table_lm22_modules),
+         scale = "none",
+         color = colorRampPalette(c("white", "#c60000"))(25),
+         border_color = "grey90",
+         cellwidth = 20, cellheight = 20, fontsize_row = 10, fontsize_col = 10, angle_col = 45, cluster_rows = FALSE, cluster_cols = FALSE)
 dev.off()
 
+# CIBERSORT
+
+library(IOBR)
+
+sigmat <- IOBR::lm22
+norm_counts <- as.data.frame(counts(dds, normalized = TRUE))
+ciber <- CIBERSORT(sig_matrix = sigmat, mixture_file = norm_counts, perm = 1000, QN = FALSE, absolute = FALSE)
+
+ciber_df <- as.data.frame(ciber)
+write.csv(ciber_df, "./CIBERSORT_results")
+ciber_df <- ciber_df[ciber_df$`P-value` <= 0.05, -c(23:25)]
+ciber_df$Location <- ifelse(grepl("H$", row.names(ciber_df)), "NL",
+                            ifelse(grepl("E$", row.names(ciber_df)), "E",
+                                   ifelse(grepl("I$", row.names(ciber_df)), "I", "C")))
+ciber_df$Location <- factor(ciber_df$Location, levels = c("NL", "E", "I", "C"))
+
+ciber_location <- aggregate(ciber_df, list(ciber_df$Location), mean)
+ciber_location$Location <- ciber_location$Group.1
+ciber_location <- ciber_location[, -1]
+ciber_location <- pivot_longer(ciber_location, cols = "B cells naive":"Neutrophils", names_to = "Population", values_to = "Proportion")
+ciber_location$Proportion <- round(ciber_location$Proportion, digits = 4)
+ciber_location <- ciber_location[ciber_location$Population != "T cells gamma delta",]
+ciber_location$Population <- factor(ciber_location$Population, levels = c("Plasma cells", "B cells memory", "B cells naive",
+                                                                          "T cells CD4 memory activated", "T cells CD4 memory resting", "T cells CD4 naive",  
+                                                                          "T cells CD8",
+                                                                          "T cells follicular helper", "T cells regulatory (Tregs)",
+                                                                          "NK cells resting", "NK cells activated",
+                                                                          "Dendritic cells resting", "Dendritic cells activated", 
+                                                                          "Mast cells resting", "Mast cells activated",
+                                                                          "Eosinophils", "Neutrophils", 
+                                                                          "Monocytes", "Macrophages M0", "Macrophages M1",  "Macrophages M2"))
+
+pdf("./SuppFig3b.pdf", width = 12, height = 8)
+ggplot(ciber_location, aes(Location, Proportion, fill = Population)) +
+  geom_col() +
+  scale_fill_manual(values = c(
+    "#9d0000", "#9e4018", "#b46936",
+    "#ff7f0e", "#f8b460", "#ffd871",
+    "#ffd501",
+    "#4dff00", "#009e3b",
+    "#00bfbd", "#007d96",
+    "#2caaff", "#0060ed",
+    "#6a00f5", "#c840d9", 
+    "#f895c9", "#ffd0d6",
+    "#dcc5c7", "#c2bcbc", "#7b7878", "#3b3b3b")) +
+  theme_classic() +
+  theme(aspect.ratio = 4, legend.position = "right") +
+  scale_y_continuous(breaks = c(seq(0, 1, by = 0.2))) +
+  guides(fill = guide_legend(ncol = 1))
+dev.off()
+                                    
 # Obtaining sub-modules
 
 library(clusterProfiler)
