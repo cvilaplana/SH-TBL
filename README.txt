@@ -32,13 +32,14 @@ R software has been used to develop the code using the following packages and ve
 	- clusterProfiler 4.10.1
 	- org.Hs.eg.db 3.18.0
 	- biomaRt 2.58.2
+	- IOBR 0.99.0
 
 R is maintained by an international team of developers who make the language available through the web page of The Comprehensive R Archive Network. This web page provides the instructions for downloading and using R (https://rstudio-education.github.io/hopr/starting.html).
 
 #  Analysis workflow R - scripts
 
 * script1.R - Required for figures 2b, 3a and 3b. DEG determination and compartment enrichment analysis.
-* script2.R - Required for WGCNA processed generated modules, corresponding Qusage enrichment, and transcription factor analysis.
+* script2.R - Required for WGCNA processed generated modules, corresponding Qusage enrichment, CIBERSORT and transcription factor analysis.
 
 * somefunctions.R - Required to run script1.R
 
@@ -51,7 +52,8 @@ Input files from scripts:
 
 Output files from scripts:
 * Fig2b.pdf, Fig3a.pdf and Fig3b.pdf - DESeq2 top genes heatmaps (derived from script1.R)
-- SuppFig4 - Immune populations associated to modular signature  (derived from script2.R) 
+- SuppFig3a - Immune populations associated to modular signature  (derived from script2.R) 
+- SuppFig3b - LM22 populations proportions as derived from CIBERSORT deconvolution (derived from script2.R)
 * GranulomeModules.gmt - Derived 21 gene modules related to TB compartments (derived from script2.R) 
 * QusageModuleEnrichment.xls - Qusage table results (derived from script2.R) 
 - QusageSubmoduleEnrichment.xls - Qusage table results (derived from script2.R) 
